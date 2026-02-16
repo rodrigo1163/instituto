@@ -11,6 +11,8 @@ import { createTask } from "./router/todo/create-task";
 import { getTasks } from "./router/todo/get-tasks";
 import { updateTask } from "./router/todo/update-task";
 import { deleteTask } from "./router/todo/delete-task";
+import { createOrganization } from "./router/organization/create-organization";
+import { fetchOrganizations } from "./router/organization/fetch-organizations";
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
 
@@ -33,6 +35,8 @@ app.register(createTask);
 app.register(getTasks);
 app.register(updateTask);
 app.register(deleteTask);
+app.register(createOrganization);
+app.register(fetchOrganizations);
 
 app.route({
   method: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

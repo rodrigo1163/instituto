@@ -26,8 +26,8 @@ model User {
   accounts            Account[]
   todos               Todo[]
   memberships         Membership[]
-  institutesCreatedBy Institute[]        @relation("InstituteCreatedBy")
-  personOnInstitutes  PersonOnInstitut[]
+  organizationsCreatedBy Organization[]  @relation("OrganizationCreatedBy")
+  personOnOrganizations PersonOnOrganization[]
 
   @@unique([email])
   @@map("user")
@@ -123,7 +123,7 @@ enum MembershipRole {
   VIEWER
 }
 
-model Institute {
+model Organization {
   id          String  @id @default(uuid())
   name        String
   slug        String  @unique
@@ -131,34 +131,34 @@ model Institute {
 
   // (opcional) atalho pra quem criou, mas o "dono" oficial fica na Membership
   createdById String?
-  createdBy   User?   @relation("InstituteCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdBy   User?   @relation("OrganizationCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
 
-  memberships        Membership[]
-  personOnInstitutes PersonOnInstitut[]
+  memberships         Membership[]
+  personOnOrganizations PersonOnOrganization[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("institute")
+  @@map("organization")
 }
 
 model Membership {
   id String @id @default(uuid())
 
-  userId      String
-  instituteId String
-  role        MembershipRole @default(MEMBER)
+  userId         String
+  organizationId String
+  role           MembershipRole @default(MEMBER)
 
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  institute Institute @relation(fields: [instituteId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   joinedAt  DateTime @default(now())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // um user só pode ter 1 membership por instituto
-  @@unique([userId, instituteId])
-  @@index([instituteId])
+  // um user só pode ter 1 membership por organização
+  @@unique([userId, organizationId])
+  @@index([organizationId])
   @@index([userId])
   @@map("membership")
 }
@@ -185,7 +185,7 @@ model Person {
   assistances PersonAssistance[]
   documents   PersonDocument[]
 
-  personOnInstitutes PersonOnInstitut[]
+  personOnOrganizations PersonOnOrganization[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -194,19 +194,19 @@ model Person {
   @@map("person")
 }
 
-model PersonOnInstitut {
-  id          String    @id @default(uuid())
-  userId      String?
-  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
-  personId    String
-  instituteId String
-  person      Person    @relation(fields: [personId], references: [id], onDelete: Cascade)
-  institute   Institute @relation(fields: [instituteId], references: [id], onDelete: Cascade)
+model PersonOnOrganization {
+  id             String       @id @default(uuid())
+  userId         String?
+  user           User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  personId       String
+  organizationId String
+  person         Person       @relation(fields: [personId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("person_on_institut")
+  @@map("person_on_organization")
 }
 
 model Address {
