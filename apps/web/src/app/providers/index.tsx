@@ -3,6 +3,7 @@ import { AuthProvider } from "@/app/providers/auth-provider";
 import { QueryProvider } from "./query-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { ErrorBoundaryProvider } from "./error-boundary-provider";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 interface ProviderProps {
   children: React.ReactNode;
@@ -14,7 +15,7 @@ export function Provider({ children }: ProviderProps) {
       <AuthProvider>
         <QueryProvider>
           <ThemeProvider>
-            {children}
+            <TooltipProvider>{children}</TooltipProvider>
             <Toaster />
           </ThemeProvider>
         </QueryProvider>
