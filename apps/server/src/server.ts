@@ -61,32 +61,45 @@ app.get("/health", () => {
   return "ok";
 });
 
+// Organization
 app.register(createOrganization);
 app.register(fetchOrganizations);
+
+// Person
 app.register(createPerson);
 app.register(fetchPersons);
 app.register(getPerson);
 app.register(updatePerson);
 app.register(removePerson);
+
+// Address
 app.register(getAddress);
 app.register(createAddress);
 app.register(updateAddress);
 app.register(removeAddress);
+
+// Relatives
 app.register(fetchRelatives);
 app.register(getRelative);
 app.register(createRelative);
 app.register(updateRelative);
 app.register(removeRelative);
+
+// Enrollments
 app.register(fetchEnrollments);
 app.register(getEnrollment);
 app.register(createEnrollment);
 app.register(updateEnrollment);
 app.register(removeEnrollment);
+
+// Assistance
 app.register(fetchAssistances);
 app.register(getAssistance);
 app.register(createAssistance);
 app.register(updateAssistance);
 app.register(removeAssistance);
+
+// Person Avatar
 app.register(getPersonAvatar);
 app.register(createPersonAvatar);
 app.register(updatePersonAvatar);
