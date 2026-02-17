@@ -29,7 +29,7 @@ export const authPlugin = fastifyPlugin(async (app: FastifyInstance) => {
         where: {
           userId: session!.user.id,
           organization: {
-            slug
+            slug,
           }
         },
         include: {

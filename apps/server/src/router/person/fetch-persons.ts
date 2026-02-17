@@ -16,11 +16,12 @@ const educationLevelSchema = z.enum([
   "POSTGRAD",
 ]);
 
+/** Schema do payload JSON da resposta (datas como string ISO após serialização). */
 const personSchema = z.object({
   id: z.string().uuid(),
   fullName: z.string(),
   cpf: z.string(),
-  birthDate: z.date(),
+  birthDate: z.string().datetime(),
   phoneNumber: z.string().nullable(),
   fatherName: z.string().nullable(),
   motherName: z.string().nullable(),
@@ -28,8 +29,12 @@ const personSchema = z.object({
   educationLevel: educationLevelSchema.nullable(),
   receivesBolsaFamilia: z.boolean(),
   nis: z.string().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+});
+
+const fetchPersonsQuerystringSchema = z.object({
+  search: z.string().optional(),
 });
 
 export async function fetchPersons(app: FastifyInstance) {
@@ -45,6 +50,7 @@ export async function fetchPersons(app: FastifyInstance) {
           params: z.object({
             slug: z.string(),
           }),
+          querystring: fetchPersonsQuerystringSchema,
           response: {
             200: z.object({
               persons: z.array(personSchema),
@@ -57,15 +63,45 @@ export async function fetchPersons(app: FastifyInstance) {
       },
       async (request) => {
         const { slug } = request.params;
+        const query = fetchPersonsQuerystringSchema.safeParse(request.query);
+        const filters = query.success ? query.data : {};
         const { organization } = await request.getUserMembership(slug);
 
-        const persons = await prisma.person.findMany({
-          where: {
-            organizationId: organization.id,
-            deleteAt: null,
-          },
+        const where: Record<string, unknown> = {
+          organizationId: organization.id,
+          deleteAt: null,
+        };
+
+        const searchTerm = filters.search?.trim();
+        if (searchTerm) {
+          where.OR = [
+            { fullName: { contains: searchTerm } },
+            { cpf: { contains: searchTerm } },
+            { phoneNumber: { contains: searchTerm } },
+            { fatherName: { contains: searchTerm } },
+            { motherName: { contains: searchTerm } },
+          ];
+        }
+
+        const rows = await prisma.person.findMany({
+          where,
           orderBy: { fullName: "asc" },
         });
+        const persons = rows.map((p) => ({
+          id: p.id,
+          fullName: p.fullName,
+          cpf: p.cpf,
+          birthDate: p.birthDate.toISOString(),
+          phoneNumber: p.phoneNumber,
+          fatherName: p.fatherName,
+          motherName: p.motherName,
+          organizationId: p.organizationId,
+          educationLevel: p.educationLevel,
+          receivesBolsaFamilia: p.receivesBolsaFamilia,
+          nis: p.nis,
+          createdAt: p.createdAt.toISOString(),
+          updatedAt: p.updatedAt.toISOString(),
+        }));
 
         return { persons };
       }

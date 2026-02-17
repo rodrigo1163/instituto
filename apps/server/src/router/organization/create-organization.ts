@@ -48,15 +48,27 @@ export async function createOrganization(app: FastifyInstance) {
           throw new BadRequestError('Essa organização já existe')
         }
 
-        const organization = await prisma.organization.create({
-          data: {
-            name,
-            slug,
-            createdById: session!.user.id,
-          },
-          select: {
-            id: true
-          }
+        const organization = await prisma.$transaction(async (tx) => {
+          const org = await tx.organization.create({
+            data: {
+              name,
+              slug,
+              createdById: session!.user.id,
+            },
+            select: {
+              id: true,
+            },
+          });
+
+          await tx.membership.create({
+            data: {
+              userId: session!.user.id,
+              organizationId: org.id,
+              role: "OWNER",
+            },
+          });
+
+          return org;
         });
 
         return { organization };

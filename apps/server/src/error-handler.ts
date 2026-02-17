@@ -7,6 +7,7 @@ import { NotFoundError } from './router/_errors/not-found-error'
 type FastifyErrorHandler = FastifyInstance['errorHandler']
 
 export const errorHandler: FastifyErrorHandler = (error, request, reply) => {
+  console.log(error)
   if (error.code === 'FST_ERR_VALIDATION') {
     return reply.status(400).send({
       message: 'Validation error',
