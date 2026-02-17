@@ -15,19 +15,18 @@ datasource db {
 }
 
 model User {
-  id                  String             @id
-  name                String
-  email               String
-  emailVerified       Boolean            @default(false)
-  image               String?
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @default(now()) @updatedAt
-  sessions            Session[]
-  accounts            Account[]
-  todos               Todo[]
-  memberships         Membership[]
-  organizationsCreatedBy Organization[]  @relation("OrganizationCreatedBy")
-  personOnOrganizations PersonOnOrganization[]
+  id                     String         @id
+  name                   String
+  email                  String
+  emailVerified          Boolean        @default(false)
+  image                  String?
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @default(now()) @updatedAt
+  sessions               Session[]
+  accounts               Account[]
+  todos                  Todo[]
+  memberships            Membership[]
+  organizationsCreatedBy Organization[] @relation("OrganizationCreatedBy")
 
   @@unique([email])
   @@map("user")
@@ -133,11 +132,12 @@ model Organization {
   createdById String?
   createdBy   User?   @relation("OrganizationCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
 
-  memberships         Membership[]
-  personOnOrganizations PersonOnOrganization[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deleteAt  DateTime?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  memberships Membership[]
+  people      Person[]
 
   @@map("organization")
 }
@@ -166,17 +166,19 @@ model Membership {
 model Person {
   id          String   @id @default(uuid())
   fullName    String
-  cpf         String   @unique // armazenar como string (com ou sem máscara)
+  cpf         String
   birthDate   DateTime
   phoneNumber String?
 
-  fatherName String?
-  motherName String?
+  fatherName     String?
+  motherName     String?
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   educationLevel EducationLevel?
 
   receivesBolsaFamilia Boolean @default(false)
-  nis                  String? @unique // NIS / Cadastro Único (opcional mas único quando existir)
+  nis                  String?
 
   // Relacionamentos
   address     Address?
@@ -185,28 +187,15 @@ model Person {
   assistances PersonAssistance[]
   documents   PersonDocument[]
 
-  personOnOrganizations PersonOnOrganization[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deleteAt  DateTime?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  @@unique([organizationId, cpf])
+  @@unique([organizationId, nis])
+  @@index([organizationId])
   @@index([fullName])
   @@map("person")
-}
-
-model PersonOnOrganization {
-  id             String       @id @default(uuid())
-  userId         String?
-  user           User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
-  personId       String
-  organizationId String
-  person         Person       @relation(fields: [personId], references: [id], onDelete: Cascade)
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("person_on_organization")
 }
 
 model Address {
@@ -221,8 +210,9 @@ model Address {
   personId String @unique
   person   Person @relation(fields: [personId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deleteAt  DateTime?
 
   @@map("address")
 }
@@ -237,8 +227,9 @@ model PersonRelative {
   degreeText   String? // se degree = OTHER, você pode preencher aqui (ex: "cunhado", "padrasto", etc)
   phoneNumber  String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deleteAt  DateTime?
 
   @@index([personId])
   @@map("person_relative")
@@ -255,8 +246,9 @@ model CoursePartner {
 
   courses Course[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deleteAt  DateTime?
 
   @@unique([name])
   @@map("course_partner")
@@ -272,8 +264,9 @@ model Course {
 
   enrollments PersonCourse[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deleteAt  DateTime?
 
   @@index([partnerId])
   @@index([title])
@@ -292,7 +285,9 @@ model PersonCourse {
   enrolledAt  DateTime  @default(now())
   completedAt DateTime?
   notes       String?
+  createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  deleteAt    DateTime?
 
   @@unique([personId, courseId])
   @@index([courseId])
@@ -310,8 +305,9 @@ model AssistanceType {
 
   records PersonAssistance[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deleteAt  DateTime?
 
   @@map("assistance_type")
 }
@@ -328,7 +324,10 @@ model PersonAssistance {
   quantity   Int?
   valueCents Int? // se fizer sentido (ex: vale, cartão)
   notes      String?
-  updatedAt  DateTime @updatedAt
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deleteAt  DateTime?
 
   @@index([personId])
   @@index([assistanceTypeId])
@@ -356,8 +355,9 @@ model PersonDocument {
   fileName String?
   mimeType String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deleteAt  DateTime?
 
   @@index([personId])
   @@map("person_document")

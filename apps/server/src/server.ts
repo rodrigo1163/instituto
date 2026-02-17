@@ -13,8 +13,29 @@ import { updateTask } from "./router/todo/update-task";
 import { deleteTask } from "./router/todo/delete-task";
 import { createOrganization } from "./router/organization/create-organization";
 import { fetchOrganizations } from "./router/organization/fetch-organizations";
+import { createPerson } from "./router/person/create-person";
+import { fetchPersons } from "./router/person/fetch-persons";
+import { BadRequestError } from "./router/_errors/bad-request-error";
+import { UnauthorizedError } from "./router/_errors/unauthorized-error";
+import { NotFoundError } from "./router/_errors/not-found-error";
+import { getPerson } from "./router/person/get-person";
+import { updatePerson } from "./router/person/update-person";
+import { removePerson } from "./router/person/remove-person";
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
+
+app.setErrorHandler((error, _request, reply) => {
+  if (error instanceof BadRequestError) {
+    return reply.status(400).send({ error: error.message });
+  }
+  if (error instanceof UnauthorizedError) {
+    return reply.status(401).send({ error: error.message });
+  }
+  if (error instanceof NotFoundError) {
+    return reply.status(404).send({ error: error.message });
+  }
+  throw error;
+});
 
 app.setValidatorCompiler(validatorCompiler);
 app.setSerializerCompiler(serializerCompiler);
@@ -37,6 +58,11 @@ app.register(updateTask);
 app.register(deleteTask);
 app.register(createOrganization);
 app.register(fetchOrganizations);
+app.register(createPerson);
+app.register(fetchPersons);
+app.register(getPerson);
+app.register(updatePerson);
+app.register(removePerson);
 
 app.route({
   method: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
