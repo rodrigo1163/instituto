@@ -35,6 +35,11 @@ import { getEnrollment } from "./router/enrollment/get-enrollment";
 import { createEnrollment } from "./router/enrollment/create-enrollment";
 import { updateEnrollment } from "./router/enrollment/update-enrollment";
 import { removeEnrollment } from "./router/enrollment/remove-enrollment";
+import { fetchAssistances } from "./router/assistance/fetch-assistances";
+import { getAssistance } from "./router/assistance/get-assistance";
+import { createAssistance } from "./router/assistance/create-assistance";
+import { updateAssistance } from "./router/assistance/update-assistance";
+import { removeAssistance } from "./router/assistance/remove-assistance";
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
 
@@ -91,6 +96,11 @@ app.register(getEnrollment);
 app.register(createEnrollment);
 app.register(updateEnrollment);
 app.register(removeEnrollment);
+app.register(fetchAssistances);
+app.register(getAssistance);
+app.register(createAssistance);
+app.register(updateAssistance);
+app.register(removeAssistance);
 
 app.route({
   method: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
