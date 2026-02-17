@@ -21,11 +21,15 @@ import { NotFoundError } from "./router/_errors/not-found-error";
 import { getPerson } from "./router/person/get-person";
 import { updatePerson } from "./router/person/update-person";
 import { removePerson } from "./router/person/remove-person";
-import { fetchAddresses } from "./router/address/fetch-addresses";
 import { getAddress } from "./router/address/get-address";
 import { createAddress } from "./router/address/create-address";
 import { updateAddress } from "./router/address/update-address";
 import { removeAddress } from "./router/address/remove-address";
+import { fetchRelatives } from "./router/relative/fetch-relatives";
+import { getRelative } from "./router/relative/get-relative";
+import { createRelative } from "./router/relative/create-relative";
+import { updateRelative } from "./router/relative/update-relative";
+import { removeRelative } from "./router/relative/remove-relative";
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
 
@@ -68,11 +72,15 @@ app.register(fetchPersons);
 app.register(getPerson);
 app.register(updatePerson);
 app.register(removePerson);
-app.register(fetchAddresses);
 app.register(getAddress);
 app.register(createAddress);
 app.register(updateAddress);
 app.register(removeAddress);
+app.register(fetchRelatives);
+app.register(getRelative);
+app.register(createRelative);
+app.register(updateRelative);
+app.register(removeRelative);
 
 app.route({
   method: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
