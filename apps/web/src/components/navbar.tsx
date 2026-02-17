@@ -38,17 +38,6 @@ export function Navbar() {
                 >
                   Dashboard
                 </Link>
-                <Link
-                  to="/todo"
-                  activeProps={activeProps}
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                  inactiveProps={{
-                    className:
-                      "text-sm font-medium text-muted-foreground hover:text-foreground transition-colors",
-                  }}
-                >
-                  To-Do
-                </Link>
                 {/* <Link
                   to="/search"
                   activeProps={activeProps}
@@ -116,17 +105,6 @@ export function Navbar() {
                 }}
               >
                 Dashboard
-              </Link>
-              <Link
-                to="/todo"
-                activeProps={activeProps}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
-                inactiveProps={{
-                  className:
-                    "text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-2",
-                }}
-              >
-                To-Do
               </Link>
               {/* <Link
                 to="/search"

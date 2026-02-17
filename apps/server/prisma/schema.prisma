@@ -26,6 +26,7 @@ model User {
   accounts               Account[]
   memberships            Membership[]
   organizationsCreatedBy Organization[] @relation("OrganizationCreatedBy")
+  invites                Invite[]
 
   @@unique([email])
   @@map("user")
@@ -125,6 +126,7 @@ model Organization {
 
   memberships Membership[]
   people      Person[]
+  invites     Invite[]
 
   @@map("organization")
 }
@@ -148,6 +150,23 @@ model Membership {
   @@index([organizationId])
   @@index([userId])
   @@map("membership")
+}
+
+model Invite {
+  id        String         @id @default(uuid())
+  email     String
+  role      MembershipRole
+  createdAt DateTime       @default(now()) @map("created_at")
+
+  author   User?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  authorId String? @map("author_id")
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId String       @map("organization_id")
+
+  @@unique([email, organizationId])
+  @@index([email])
+  @@map("invites")
 }
 
 model Person {

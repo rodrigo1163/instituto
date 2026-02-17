@@ -1,4 +1,3 @@
-import { Navbar } from "@/components/navbar";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/(private)")({
@@ -14,7 +13,6 @@ export const Route = createFileRoute("/(private)")({
 function PrivateRoute() {
   return (
     <div>
-      <Navbar />
       <Outlet />
     </div>
   );
