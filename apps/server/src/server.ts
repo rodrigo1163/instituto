@@ -7,10 +7,6 @@ import {
 import { env } from "../env";
 import { auth } from "../lib/auth";
 import fastifyCors from "@fastify/cors";
-import { createTask } from "./router/todo/create-task";
-import { getTasks } from "./router/todo/get-tasks";
-import { updateTask } from "./router/todo/update-task";
-import { deleteTask } from "./router/todo/delete-task";
 import { createOrganization } from "./router/organization/create-organization";
 import { fetchOrganizations } from "./router/organization/fetch-organizations";
 import { createPerson } from "./router/person/create-person";
@@ -75,10 +71,6 @@ app.get("/health", () => {
   return "ok";
 });
 
-app.register(createTask);
-app.register(getTasks);
-app.register(updateTask);
-app.register(deleteTask);
 app.register(createOrganization);
 app.register(fetchOrganizations);
 app.register(createPerson);

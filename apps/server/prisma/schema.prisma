@@ -24,7 +24,6 @@ model User {
   updatedAt              DateTime       @default(now()) @updatedAt
   sessions               Session[]
   accounts               Account[]
-  todos                  Todo[]
   memberships            Membership[]
   organizationsCreatedBy Organization[] @relation("OrganizationCreatedBy")
 
@@ -75,18 +74,6 @@ model Verification {
   updatedAt  DateTime @default(now()) @updatedAt
 
   @@map("verification")
-}
-
-model Todo {
-  id        String   @id @default(uuid())
-  text      String
-  completed Boolean  @default(false)
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("todo")
 }
 
 enum EducationLevel {
