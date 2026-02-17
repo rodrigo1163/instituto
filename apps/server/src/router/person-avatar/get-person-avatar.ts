@@ -4,26 +4,36 @@ import { z } from "zod/v4";
 import { prisma } from "../../../lib/prisma";
 import { authPlugin } from "../../middlewares/auth";
 import { NotFoundError } from "../_errors/not-found-error";
+import { PersonDocumentType } from "../../../generated/prisma/enums";
 
-export async function removeDocument(app: FastifyInstance) {
+const documentTypeSchema = z.enum(["WALLET_PHOTO", "OTHER"]);
+
+export async function getPersonAvatar(app: FastifyInstance) {
   app
     .withTypeProvider<ZodTypeProvider>()
     .register(authPlugin)
-    .delete(
-      "/organizations/:slug/persons/:personId/documents/:documentId",
+    .get(
+      "/organizations/:slug/persons/:personId/avatar",
       {
         schema: {
-          tags: ["document"],
-          summary: "Soft delete a document",
+          tags: ["person-avatar"],
+          summary: "Get a document by id (excludes soft-deleted)",
           params: z.object({
             slug: z.string(),
             personId: z.string().uuid(),
-            documentId: z.string().uuid(),
           }),
           response: {
-            200: z.null(),
-            401: z.object({
-              error: z.string(),
+            200: z.object({
+              avatar: z.object({
+                id: z.string().uuid(),
+                personId: z.string().uuid(),
+                type: documentTypeSchema,
+                fileUrl: z.string(),
+                fileName: z.string().nullable(),
+                mimeType: z.string().nullable(),
+                createdAt: z.date(),
+                updatedAt: z.date(),
+              }).nullable(),
             }),
             404: z.object({
               error: z.string(),
@@ -32,7 +42,7 @@ export async function removeDocument(app: FastifyInstance) {
         },
       },
       async (request) => {
-        const { slug, personId, documentId } = request.params;
+        const { slug, personId } = request.params;
         const { organization } = await request.getUserMembership(slug);
 
         const person = await prisma.person.findFirst({
@@ -47,22 +57,15 @@ export async function removeDocument(app: FastifyInstance) {
           throw new NotFoundError("Pessoa não encontrada.");
         }
 
-        const document = await prisma.personDocument.findFirst({
+        const avatar = await prisma.personDocument.findFirst({
           where: {
-            id: documentId,
             personId,
+            type: PersonDocumentType.WALLET_PHOTO,
             deleteAt: null,
           },
         });
 
-        if (!document) {
-          throw new NotFoundError("Documento não encontrado.");
-        }
-
-        await prisma.personDocument.update({
-          where: { id: documentId },
-          data: { deleteAt: new Date() },
-        });
+        return { avatar };
       }
     );
 }

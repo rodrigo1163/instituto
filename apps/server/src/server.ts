@@ -36,10 +36,10 @@ import { getAssistance } from "./router/assistance/get-assistance";
 import { createAssistance } from "./router/assistance/create-assistance";
 import { updateAssistance } from "./router/assistance/update-assistance";
 import { removeAssistance } from "./router/assistance/remove-assistance";
-import { getDocument } from "./router/document/get-document";
-import { createDocument } from "./router/document/create-document";
-import { updateDocument } from "./router/document/update-document";
-import { removeDocument } from "./router/document/remove-document";
+import { getPersonAvatar } from "./router/person-avatar/get-person-avatar";
+import { createPersonAvatar } from "./router/person-avatar/create-person-avatar";
+import { updatePersonAvatar } from "./router/person-avatar/update-person-avatar";
+import { removePersonAvatar } from "./router/person-avatar/remove-person-avatar";
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
 
@@ -97,10 +97,10 @@ app.register(getAssistance);
 app.register(createAssistance);
 app.register(updateAssistance);
 app.register(removeAssistance);
-app.register(getDocument);
-app.register(createDocument);
-app.register(updateDocument);
-app.register(removeDocument);
+app.register(getPersonAvatar);
+app.register(createPersonAvatar);
+app.register(updatePersonAvatar);
+app.register(removePersonAvatar);
 
 app.route({
   method: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

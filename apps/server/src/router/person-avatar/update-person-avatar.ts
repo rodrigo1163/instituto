@@ -7,33 +7,31 @@ import { NotFoundError } from "../_errors/not-found-error";
 
 const documentTypeSchema = z.enum(["WALLET_PHOTO", "OTHER"]);
 
-export async function getDocument(app: FastifyInstance) {
+export async function updatePersonAvatar(app: FastifyInstance) {
   app
     .withTypeProvider<ZodTypeProvider>()
     .register(authPlugin)
-    .get(
-      "/organizations/:slug/persons/:personId/documents/:documentId",
+    .put(
+      "/organizations/:slug/persons/:personId/avatar",
       {
         schema: {
-          tags: ["document"],
-          summary: "Get a document by id (excludes soft-deleted)",
+          tags: ["person-avatar"],
+          summary: "Update a avatar (e.g. photo) for a person",
           params: z.object({
             slug: z.string(),
             personId: z.string().uuid(),
             documentId: z.string().uuid(),
           }),
+          body: z.object({
+            type: documentTypeSchema.optional(),
+            fileUrl: z.string().url().optional(),
+            fileName: z.string().nullable().optional(),
+            mimeType: z.string().nullable().optional(),
+          }),
           response: {
-            200: z.object({
-              document: z.object({
-                id: z.string().uuid(),
-                personId: z.string().uuid(),
-                type: documentTypeSchema,
-                fileUrl: z.string(),
-                fileName: z.string().nullable(),
-                mimeType: z.string().nullable(),
-                createdAt: z.date(),
-                updatedAt: z.date(),
-              }).nullable(),
+            200: z.null(),
+            401: z.object({
+              error: z.string(),
             }),
             404: z.object({
               error: z.string(),
@@ -44,6 +42,7 @@ export async function getDocument(app: FastifyInstance) {
       async (request) => {
         const { slug, personId, documentId } = request.params;
         const { organization } = await request.getUserMembership(slug);
+        const body = request.body;
 
         const person = await prisma.person.findFirst({
           where: {
@@ -65,7 +64,14 @@ export async function getDocument(app: FastifyInstance) {
           },
         });
 
-        return { document };
+        if (!document) {
+          throw new NotFoundError("Documento não encontrado.");
+        }
+
+        await prisma.personDocument.update({
+          where: { id: documentId },
+          data: body,
+        });
       }
     );
 }

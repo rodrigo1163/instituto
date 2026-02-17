@@ -5,28 +5,20 @@ import { prisma } from "../../../lib/prisma";
 import { authPlugin } from "../../middlewares/auth";
 import { NotFoundError } from "../_errors/not-found-error";
 
-const documentTypeSchema = z.enum(["WALLET_PHOTO", "OTHER"]);
-
-export async function updateDocument(app: FastifyInstance) {
+export async function removePersonAvatar(app: FastifyInstance) {
   app
     .withTypeProvider<ZodTypeProvider>()
     .register(authPlugin)
-    .put(
-      "/organizations/:slug/persons/:personId/documents/:documentId",
+    .delete(
+      "/organizations/:slug/persons/:personId/avatar",
       {
         schema: {
-          tags: ["document"],
-          summary: "Update a document (e.g. avatar)",
+          tags: ["person-avatar"],
+          summary: "Soft delete a avatar (e.g. photo) for a person",
           params: z.object({
             slug: z.string(),
             personId: z.string().uuid(),
             documentId: z.string().uuid(),
-          }),
-          body: z.object({
-            type: documentTypeSchema.optional(),
-            fileUrl: z.string().url().optional(),
-            fileName: z.string().nullable().optional(),
-            mimeType: z.string().nullable().optional(),
           }),
           response: {
             200: z.null(),
@@ -42,7 +34,6 @@ export async function updateDocument(app: FastifyInstance) {
       async (request) => {
         const { slug, personId, documentId } = request.params;
         const { organization } = await request.getUserMembership(slug);
-        const body = request.body;
 
         const person = await prisma.person.findFirst({
           where: {
@@ -70,7 +61,7 @@ export async function updateDocument(app: FastifyInstance) {
 
         await prisma.personDocument.update({
           where: { id: documentId },
-          data: body,
+          data: { deleteAt: new Date() },
         });
       }
     );

@@ -7,7 +7,7 @@ import { NotFoundError } from "../_errors/not-found-error";
 
 const documentTypeSchema = z.enum(["WALLET_PHOTO", "OTHER"]);
 
-export async function createDocument(app: FastifyInstance) {
+export async function createPersonAvatar(app: FastifyInstance) {
   // TODO: Implementar upload de foto/avatar (ex: S3, Cloudflare R2). Após o upload,
   // obter a URL do arquivo e enviá-la no body (fileUrl). No futuro este endpoint
   // pode aceitar multipart/form-data com o arquivo e fazer o upload antes de persistir.
@@ -15,11 +15,11 @@ export async function createDocument(app: FastifyInstance) {
     .withTypeProvider<ZodTypeProvider>()
     .register(authPlugin)
     .post(
-      "/organizations/:slug/persons/:personId/documents",
+      "/organizations/:slug/persons/:personId/avatar",
       {
         schema: {
-          tags: ["document"],
-          summary: "Create a document (e.g. avatar) for a person. TODO: upload de foto futuramente.",
+          tags: ["person-avatar"],
+          summary: "Create a avatar (e.g. photo) for a person. TODO: upload de foto futuramente.",
           params: z.object({
             slug: z.string(),
             personId: z.string().uuid(),
