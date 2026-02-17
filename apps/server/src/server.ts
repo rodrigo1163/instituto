@@ -36,6 +36,8 @@ import { getAssistance } from "./router/assistance/get-assistance";
 import { createAssistance } from "./router/assistance/create-assistance";
 import { updateAssistance } from "./router/assistance/update-assistance";
 import { removeAssistance } from "./router/assistance/remove-assistance";
+import { fetchAssistanceTypes } from "./router/assistance-type/fetch-assistance-types";
+import { fetchCourses } from "./router/course/fetch-courses";
 import { getPersonAvatar } from "./router/person-avatar/get-person-avatar";
 import { createPersonAvatar } from "./router/person-avatar/create-person-avatar";
 import { updatePersonAvatar } from "./router/person-avatar/update-person-avatar";
@@ -84,6 +86,12 @@ app.register(getRelative);
 app.register(createRelative);
 app.register(updateRelative);
 app.register(removeRelative);
+
+// Course
+app.register(fetchCourses);
+
+// Assistance types
+app.register(fetchAssistanceTypes);
 
 // Enrollments
 app.register(fetchEnrollments);

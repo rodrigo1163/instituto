@@ -3,7 +3,6 @@ import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod/v4";
 import { prisma } from "../../../lib/prisma";
 import { authPlugin } from "../../middlewares/auth";
-import { BadRequestError } from "../_errors/bad-request-error";
 import { NotFoundError } from "../_errors/not-found-error";
 
 const educationLevelSchema = z.enum([
@@ -43,7 +42,7 @@ export async function createPerson(app: FastifyInstance) {
             nis: z.string().optional(),
           }),
           response: {
-            200: z.null(),
+            200: z.object({ id: z.string().uuid() }),
             401: z.object({
               error: z.string(),
             }),
@@ -66,7 +65,7 @@ export async function createPerson(app: FastifyInstance) {
           throw new NotFoundError("Pessoa já cadastrada.");
         }
 
-        await prisma.person.create({
+        const person = await prisma.person.create({
           data: {
             organizationId: organization.id,
             fullName: body.fullName,
@@ -80,6 +79,8 @@ export async function createPerson(app: FastifyInstance) {
             nis: body.nis ?? null,
           }
         });
+
+        return { id: person.id };
       }
     );
 }
