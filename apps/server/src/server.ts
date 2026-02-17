@@ -40,24 +40,14 @@ import { getPersonAvatar } from "./router/person-avatar/get-person-avatar";
 import { createPersonAvatar } from "./router/person-avatar/create-person-avatar";
 import { updatePersonAvatar } from "./router/person-avatar/update-person-avatar";
 import { removePersonAvatar } from "./router/person-avatar/remove-person-avatar";
+import { errorHandler } from "./error-handler";
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
 
-app.setErrorHandler((error, _request, reply) => {
-  if (error instanceof BadRequestError) {
-    return reply.status(400).send({ error: error.message });
-  }
-  if (error instanceof UnauthorizedError) {
-    return reply.status(401).send({ error: error.message });
-  }
-  if (error instanceof NotFoundError) {
-    return reply.status(404).send({ error: error.message });
-  }
-  throw error;
-});
-
 app.setValidatorCompiler(validatorCompiler);
 app.setSerializerCompiler(serializerCompiler);
+
+app.setErrorHandler(errorHandler)
 
 app.register(fastifyCors, {
   origin: env.CLIENT_ORIGIN,
