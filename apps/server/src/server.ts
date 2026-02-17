@@ -40,6 +40,10 @@ import { getAssistance } from "./router/assistance/get-assistance";
 import { createAssistance } from "./router/assistance/create-assistance";
 import { updateAssistance } from "./router/assistance/update-assistance";
 import { removeAssistance } from "./router/assistance/remove-assistance";
+import { getDocument } from "./router/document/get-document";
+import { createDocument } from "./router/document/create-document";
+import { updateDocument } from "./router/document/update-document";
+import { removeDocument } from "./router/document/remove-document";
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
 
@@ -101,6 +105,10 @@ app.register(getAssistance);
 app.register(createAssistance);
 app.register(updateAssistance);
 app.register(removeAssistance);
+app.register(getDocument);
+app.register(createDocument);
+app.register(updateDocument);
+app.register(removeDocument);
 
 app.route({
   method: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
