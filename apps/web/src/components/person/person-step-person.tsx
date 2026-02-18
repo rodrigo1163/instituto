@@ -21,6 +21,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { EDUCATION_LEVELS, type CreatePersonInput } from "@/api/upsert-person";
 import { usePersonStep } from "@/app/providers/person-step-provider";
 import { PersonStepFooter } from "./person-step-footer";
+import { useSearch } from "@tanstack/react-router";
+import { useGetPerson } from "@/hooks/person/use-get-person";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
@@ -44,30 +46,37 @@ const personSchema = z.object({
 
 type PersonSchema = z.infer<typeof personSchema>;
 
-interface PersonStepPersonProps {
-  data?: PersonSchema;
-}
 
-export function PersonStepPerson({ data }: PersonStepPersonProps) {
+export function PersonStepPerson() {
+  const { personId } = useSearch({ from: "/(private)/$slug/persons/new/" });
   const { handleSubmit: handleSubmitPersonStep } = usePersonStep();
+  const { data, error: personError } = useGetPerson({ personId: personId });
 
   const form = useForm<PersonSchema>({
     resolver: zodResolver(personSchema),
     defaultValues: {
-      fullName: data?.fullName || "",
-      cpf: data?.cpf || "",
-      birthDate: data?.birthDate || "",
-      phoneNumber: data?.phoneNumber || "",
-      fatherName: data?.fatherName || "",
-      motherName: data?.motherName || "",
-      educationLevel: data?.educationLevel || undefined,
-      receivesBolsaFamilia: data?.receivesBolsaFamilia || false,
-      nis: data?.nis || "",
+      fullName: data?.person.fullName || "",
+      cpf: data?.person.cpf || "",
+      birthDate: data?.person.birthDate || "",
+      phoneNumber: data?.person.phoneNumber || "",
+      fatherName: data?.person.fatherName || "",
+      motherName: data?.person.motherName || "",
+      educationLevel: data?.person.educationLevel || undefined,
+      receivesBolsaFamilia: data?.person.receivesBolsaFamilia || false,
+      nis: data?.person.nis || "",
     },
   });
 
   async function handleSubmit(data: PersonSchema) {
-    await handleSubmitPersonStep<PersonSchema>(data);
+    const body = {
+      ...data,
+      id: personId || undefined,
+    };
+    await handleSubmitPersonStep<PersonSchema>(body);
+  }
+
+  if (personError) {
+    return <div>Erro ao carregar pessoa: {personError.message}</div>;
   }
 
   return (

@@ -7,6 +7,7 @@ export const Route = createFileRoute('/(private)/$slug/persons/new/')({
   component: RouteComponent,
   validateSearch: z.object({
     personId: z.string().optional(),
+    step: z.number().default(0),
   }),
 })
 

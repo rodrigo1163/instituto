@@ -67,12 +67,11 @@ export async function createPerson(app: FastifyInstance) {
         const personExist = await prisma.person.findFirst({
           where: {
             organizationId: organization.id,
-            NOT: { id: body.id },
             OR: orConditions,
           },
         });
 
-        if (personExist) {
+        if (personExist && personExist.id !== body.id) {
           const duplicateCpf = personExist.cpf === body.cpf;
           const duplicateNis = body.nis && personExist.nis === body.nis;
 

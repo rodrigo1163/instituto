@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,9 +25,10 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useParams } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { usePersonStep } from "@/app/providers/person-step-provider";
 import { PersonStepPerson } from "./person-step-person";
+import { PersonStepAddress } from "./person-step-address";
 import { PersonStepFooter } from "./person-step-footer";
 
 export const PERSON_STEPS = [
@@ -38,68 +39,6 @@ export const PERSON_STEPS = [
   { id: "assistances", title: "Assistências" },
   { id: "documents", title: "Documentos" },
 ];
-
-// Person
-interface PersonFields {
-  fullName: string;
-  cpf: string;
-  birthDate: string;
-  phoneNumber: string;
-  fatherName: string;
-  motherName: string;
-  educationLevel: string;
-  receivesBolsaFamilia: boolean;
-  nis: string;
-}
-
-// Address
-interface AddressFields {
-  cep: string;
-  neighborhood: string;
-  street: string;
-  number: string;
-  complement: string;
-}
-
-// PersonRelative (um item; pode expandir para lista depois)
-interface RelativeFields {
-  relativeName: string;
-  degree: string;
-  degreeText: string;
-  relativePhoneNumber: string;
-}
-
-// PersonCourse (um item)
-interface CourseFields {
-  courseId: string;
-  enrolledAt: string;
-  completedAt: string;
-  courseNotes: string;
-}
-
-// PersonAssistance (um item)
-interface AssistanceFields {
-  assistanceTypeId: string;
-  receivedAt: string;
-  quantity: string;
-  valueCents: string;
-  assistanceNotes: string;
-}
-
-// PersonDocument (um item)
-interface DocumentFields {
-  documentType: string;
-  fileUrl: string;
-  fileName: string;
-  mimeType: string;
-}
-
-type FormData = PersonFields &
-  AddressFields &
-  RelativeFields &
-  CourseFields &
-  AssistanceFields &
-  DocumentFields;
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
@@ -114,8 +53,8 @@ const contentVariants = {
 
 const OnboardingForm = () => {
   useParams({ strict: false });
-  const { currentStep, setCurrentStep, formData, setFormData } =
-    usePersonStep();
+  const navigate = useNavigate({ from: "/$slug/persons/new" });
+  const { currentStep, formData } = usePersonStep();
 
   return (
     <div className="w-full max-w-lg mx-auto py-8">
@@ -145,7 +84,12 @@ const OnboardingForm = () => {
                 onClick={() => {
                   // Only allow going back or to completed steps
                   if (index <= currentStep) {
-                    setCurrentStep(index);
+                    navigate({
+                      search: (prev) => ({
+                        ...prev,
+                        step: index,
+                      }),
+                    });
                   }
                 }}
                 whileTap={{ scale: 0.95 }}
@@ -192,71 +136,17 @@ const OnboardingForm = () => {
                 variants={contentVariants}
               >
                 {/* Step 0: Person */}
-                {currentStep === 0 && <PersonStepPerson />}
+                {currentStep === 0 && (
+                  <Suspense fallback={<div>Carregando...</div>}>
+                    <PersonStepPerson />
+                  </Suspense>
+                )}
 
                 {/* Step 1: Address */}
                 {currentStep === 1 && (
-                  <>
-                    <CardHeader>
-                      <CardTitle>Endereço</CardTitle>
-                      <CardDescription>Endereço da pessoa</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label htmlFor="cep">CEP</Label>
-                        <Input
-                          id="cep"
-                          value={formData.cep}
-                          onChange={(e) => console.log("cep", e.target.value)}
-                          className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        />
-                      </motion.div>
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label htmlFor="neighborhood">Bairro</Label>
-                        <Input
-                          id="neighborhood"
-                          value={formData.neighborhood}
-                          onChange={(e) =>
-                            console.log("neighborhood", e.target.value)
-                          }
-                          className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        />
-                      </motion.div>
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label htmlFor="street">Rua</Label>
-                        <Input
-                          id="street"
-                          value={formData.street}
-                          onChange={(e) =>
-                            console.log("street", e.target.value)
-                          }
-                          className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        />
-                      </motion.div>
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label htmlFor="number">Número</Label>
-                        <Input
-                          id="number"
-                          value={formData.number}
-                          onChange={(e) =>
-                            console.log("number", e.target.value)
-                          }
-                          className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        />
-                      </motion.div>
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label htmlFor="complement">Complemento</Label>
-                        <Input
-                          id="complement"
-                          value={formData.complement}
-                          onChange={(e) =>
-                            console.log("complement", e.target.value)
-                          }
-                          className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        />
-                      </motion.div>
-                    </CardContent>
-                  </>
+                  <Suspense fallback={<div>Carregando...</div>}>
+                    <PersonStepAddress />
+                  </Suspense>
                 )}
 
                 {/* Step 2: PersonRelative */}

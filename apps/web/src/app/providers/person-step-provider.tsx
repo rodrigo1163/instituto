@@ -1,7 +1,8 @@
 import { upsertPerson } from "@/api/upsert-person";
+import { upsertAddress } from "@/api/upsert-address";
 import { PERSON_STEPS } from "@/components/person/person-step";
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate, useParams } from "@tanstack/react-router";
+import { useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import { AxiosError } from "axios";
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { toast } from "sonner";
@@ -69,14 +70,13 @@ type FormData = PersonFields &
 
 interface PersonStepContextType {
   currentStep: number;
-  setCurrentStep: (step: number) => void;
   nextStep: () => void;
   prevStep: () => void;
   formData: FormData;
   setFormData: (data: FormData) => void;
   isSubmitting: boolean;
   handleSubmit: <T>(data: T) => Promise<void>;
-  isStepValid: () => boolean
+  isStepValid: () => boolean;
 }
 
 interface PersonStepProvider {
@@ -87,9 +87,12 @@ const PersonStepContext = createContext({} as PersonStepContextType);
 
 export function PersonStepProvider({ children }: PersonStepProvider) {
   const { slug } = useParams({ strict: false });
-  const navigate = useNavigate({ from: "/$slug/persons/new"})
+  const navigate = useNavigate({ from: "/$slug/persons/new" });
+  const { step, personId } = useSearch({
+    from: "/(private)/$slug/persons/new/",
+  });
 
-  const [currentStep, setCurrentStep] = useState(0);
+  const currentStep = step;
   const [formData, setFormData] = useState<FormData>({
     fullName: "",
     cpf: "",
@@ -124,19 +127,28 @@ export function PersonStepProvider({ children }: PersonStepProvider) {
     mimeType: "",
   });
 
-  const stepFunction = [upsertPerson] as const;
-
   const { mutateAsync: upsertPersonFn, isPending } = useMutation<
     any,
     Error,
     any
   >({
-    mutationFn: (body) => stepFunction[currentStep]({ slug: slug!, body }),
+    mutationFn: (body) => {
+      if (currentStep === 0) {
+        return upsertPerson({ slug: slug!, body });
+      }
+      if (currentStep === 1) {
+        return upsertAddress({
+          slug: slug!,
+          personId: personId!,
+          body,
+        });
+      }
+      return Promise.resolve({ id: undefined });
+    },
     onSuccess: (data) => {
-      const personId = data.id || undefined;
       toast.success("Salvo com sucesso");
-      
-      nextStep(personId);
+      const idForStep = currentStep === 0 ? data.id : undefined;
+      nextStep(idForStep);
     },
     onError: (error) => {
       console.log("error", error);
@@ -152,26 +164,36 @@ export function PersonStepProvider({ children }: PersonStepProvider) {
 
   const nextStep = (personId?: string) => {
     if (currentStep < PERSON_STEPS.length - 1) {
-      setCurrentStep((prev) => prev + 1)
+      navigate({
+        search: (prev) => ({
+          ...prev,
+          step: currentStep + 1,
+        }),
+      });
     }
     if (currentStep === 0) {
       navigate({
         search: (prev) => ({
           ...prev,
-          personId: personId || undefined
+          personId: personId || undefined,
         }),
-        replace: true
-      })  
+        replace: true,
+      });
     }
   };
 
   const prevStep = () => {
     if (currentStep > 0) {
-      setCurrentStep((prev) => prev - 1);
+      navigate({
+        search: (prev) => ({
+          ...prev,
+          step: currentStep - 1,
+        }),
+      });
     }
   };
 
-   const isStepValid = () => {
+  const isStepValid = () => {
     switch (currentStep) {
       case 0:
         return (
@@ -189,8 +211,8 @@ export function PersonStepProvider({ children }: PersonStepProvider) {
       default:
         return true;
     }
-   };
-  
+  };
+
   async function handleSubmit<T>(data: T) {
     await upsertPersonFn(data);
   }
@@ -199,7 +221,6 @@ export function PersonStepProvider({ children }: PersonStepProvider) {
     <PersonStepContext.Provider
       value={{
         currentStep,
-        setCurrentStep,
         nextStep,
         prevStep,
         formData,

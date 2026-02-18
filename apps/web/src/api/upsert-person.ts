@@ -15,6 +15,7 @@ export const EDUCATION_LEVELS = [
 export type EducationLevel = (typeof EDUCATION_LEVELS)[number];
 
 export interface CreatePersonInput {
+  id?: string;
   fullName: string;
   cpf: string;
   birthDate: Date | string;

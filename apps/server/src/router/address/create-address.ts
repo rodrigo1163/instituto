@@ -4,7 +4,6 @@ import { z } from "zod/v4";
 import { prisma } from "../../../lib/prisma";
 import { authPlugin } from "../../middlewares/auth";
 import { NotFoundError } from "../_errors/not-found-error";
-import { BadRequestError } from "../_errors/bad-request-error";
 
 export async function createAddress(app: FastifyInstance) {
   app
@@ -15,7 +14,7 @@ export async function createAddress(app: FastifyInstance) {
       {
         schema: {
           tags: ["address"],
-          summary: "Create address for a person",
+          summary: "Create or update address for a person",
           params: z.object({
             slug: z.string(),
             personId: z.string().uuid(),
@@ -28,7 +27,7 @@ export async function createAddress(app: FastifyInstance) {
             complement: z.string().optional(),
           }),
           response: {
-            200: z.null(),
+            200: z.object({ id: z.string().uuid() }),
             401: z.object({
               error: z.string(),
             }),
@@ -62,20 +61,36 @@ export async function createAddress(app: FastifyInstance) {
           },
         });
 
+        const data = {
+          cep: body.cep,
+          neighborhood: body.neighborhood,
+          street: body.street,
+          number: body.number,
+          complement: body.complement ?? null,
+        };
+
         if (existingAddress) {
-          throw new BadRequestError("Esta pessoa já possui um endereço cadastrado.");
+          const address = await prisma.address.update({
+            where: { id: existingAddress.id },
+            data,
+            select: {
+              id: true,
+            },
+          });
+          return { id: address.id };
         }
 
-        await prisma.address.create({
+        const address = await prisma.address.create({
           data: {
             personId,
-            cep: body.cep,
-            neighborhood: body.neighborhood,
-            street: body.street,
-            number: body.number,
-            complement: body.complement ?? null,
+            ...data,
+          },
+          select: {
+            id: true,
           },
         });
-      }
+
+        return { id: address.id };
+      },
     );
 }
