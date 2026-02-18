@@ -29,6 +29,7 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import { usePersonStep } from "@/app/providers/person-step-provider";
 import { PersonStepPerson } from "./person-step-person";
 import { PersonStepAddress } from "./person-step-address";
+import { PersonStepRelative } from "./person-step-relative";
 import { PersonStepFooter } from "./person-step-footer";
 
 export const PERSON_STEPS = [
@@ -151,79 +152,9 @@ const OnboardingForm = () => {
 
                 {/* Step 2: PersonRelative */}
                 {currentStep === 2 && (
-                  <>
-                    <CardHeader>
-                      <CardTitle>Familiares</CardTitle>
-                      <CardDescription>Dados de um familiar</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label htmlFor="relativeName">Nome do familiar</Label>
-                        <Input
-                          id="relativeName"
-                          value={formData.relativeName}
-                          onChange={(e) =>
-                            console.log("relativeName", e.target.value)
-                          }
-                          className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        />
-                      </motion.div>
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label>Grau de parentesco</Label>
-                        <Select
-                          value={formData.degree}
-                          onValueChange={(value) =>
-                            console.log("degree", value)
-                          }
-                        >
-                          <SelectTrigger className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                            <SelectValue placeholder="Selecione" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="SPOUSE">Cônjuge</SelectItem>
-                            <SelectItem value="CHILD">Filho(a)</SelectItem>
-                            <SelectItem value="FATHER">Pai</SelectItem>
-                            <SelectItem value="MOTHER">Mãe</SelectItem>
-                            <SelectItem value="SIBLING">Irmão(ã)</SelectItem>
-                            <SelectItem value="GRANDPARENT">Avô(ó)</SelectItem>
-                            <SelectItem value="GRANDCHILD">Neto(a)</SelectItem>
-                            <SelectItem value="UNCLE_AUNT">Tio(a)</SelectItem>
-                            <SelectItem value="NEPHEW_NIECE">
-                              Sobrinho(a)
-                            </SelectItem>
-                            <SelectItem value="COUSIN">Primo(a)</SelectItem>
-                            <SelectItem value="OTHER">Outro</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </motion.div>
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label htmlFor="degreeText">
-                          Parentesco (se Outro)
-                        </Label>
-                        <Input
-                          id="degreeText"
-                          value={formData.degreeText}
-                          onChange={(e) =>
-                            console.log("degreeText", e.target.value)
-                          }
-                          className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        />
-                      </motion.div>
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label htmlFor="relativePhoneNumber">
-                          Telefone do familiar
-                        </Label>
-                        <Input
-                          id="relativePhoneNumber"
-                          value={formData.relativePhoneNumber}
-                          onChange={(e) =>
-                            console.log("relativePhoneNumber", e.target.value)
-                          }
-                          className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        />
-                      </motion.div>
-                    </CardContent>
-                  </>
+                  <Suspense fallback={<div>Carregando...</div>}>
+                    <PersonStepRelative />
+                  </Suspense>
                 )}
 
                 {/* Step 3: PersonCourse */}
