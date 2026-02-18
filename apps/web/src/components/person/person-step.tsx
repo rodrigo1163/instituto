@@ -26,8 +26,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useParams } from "@tanstack/react-router";
+import { usePersonStep } from "@/app/providers/person-step-provider";
+import { PersonStepPerson } from "./person-step-person";
+import { PersonStepFooter } from "./person-step-footer";
 
-const steps = [
+export const PERSON_STEPS = [
   { id: "person", title: "Dados da pessoa" },
   { id: "address", title: "Endereço" },
   { id: "relatives", title: "Familiares" },
@@ -111,87 +114,8 @@ const contentVariants = {
 
 const OnboardingForm = () => {
   useParams({ strict: false });
-  const [currentStep, setCurrentStep] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState<FormData>({
-    fullName: "",
-    cpf: "",
-    birthDate: "",
-    phoneNumber: "",
-    fatherName: "",
-    motherName: "",
-    educationLevel: "",
-    receivesBolsaFamilia: false,
-    nis: "",
-    cep: "",
-    neighborhood: "",
-    street: "",
-    number: "",
-    complement: "",
-    relativeName: "",
-    degree: "",
-    degreeText: "",
-    relativePhoneNumber: "",
-    courseId: "",
-    enrolledAt: "",
-    completedAt: "",
-    courseNotes: "",
-    assistanceTypeId: "",
-    receivedAt: "",
-    quantity: "",
-    valueCents: "",
-    assistanceNotes: "",
-    documentType: "WALLET_PHOTO",
-    fileUrl: "",
-    fileName: "",
-    mimeType: "",
-  });
-
-  const updateFormData = (field: keyof FormData, value: string | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const nextStep = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep((prev) => prev + 1);
-    }
-  };
-
-  const prevStep = () => {
-    if (currentStep > 0) {
-      setCurrentStep((prev) => prev - 1);
-    }
-  };
-
-  const handleSubmit = () => {
-    setIsSubmitting(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      toast.success("Form submitted successfully!");
-      setIsSubmitting(false);
-    }, 1500);
-  };
-
-  const isStepValid = () => {
-    switch (currentStep) {
-      case 0:
-        return (
-          formData.fullName.trim() !== "" &&
-          formData.cpf.trim() !== "" &&
-          formData.birthDate.trim() !== ""
-        );
-      case 1:
-        return (
-          formData.cep.trim() !== "" &&
-          formData.neighborhood.trim() !== "" &&
-          formData.street.trim() !== "" &&
-          formData.number.trim() !== ""
-        );
-      default:
-        return true;
-    }
-  };
+  const { currentStep, setCurrentStep, formData, setFormData } =
+    usePersonStep();
 
   return (
     <div className="w-full max-w-lg mx-auto py-8">
@@ -203,7 +127,7 @@ const OnboardingForm = () => {
         transition={{ duration: 0.5 }}
       >
         <div className="flex justify-between mb-2">
-          {steps.map((step, index) => (
+          {PERSON_STEPS.map((step, index) => (
             <motion.div
               key={index}
               className="flex flex-col items-center"
@@ -243,7 +167,9 @@ const OnboardingForm = () => {
           <motion.div
             className="h-full bg-primary"
             initial={{ width: 0 }}
-            animate={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
+            animate={{
+              width: `${(currentStep / (PERSON_STEPS.length - 1)) * 100}%`,
+            }}
             transition={{ duration: 0.3 }}
           />
         </div>
@@ -266,150 +192,7 @@ const OnboardingForm = () => {
                 variants={contentVariants}
               >
                 {/* Step 0: Person */}
-                {currentStep === 0 && (
-                  <>
-                    <CardHeader>
-                      <CardTitle>Dados da pessoa</CardTitle>
-                      <CardDescription>
-                        Informações pessoais básicas
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <motion.div
-                        variants={fadeInUp}
-                        className="space-y-2 sm:col-span-2"
-                      >
-                        <Label htmlFor="fullName">Nome completo</Label>
-                        <Input
-                          id="fullName"
-                          value={formData.fullName}
-                          onChange={(e) =>
-                            updateFormData("fullName", e.target.value)
-                          }
-                          className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        />
-                      </motion.div>
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label htmlFor="cpf">CPF</Label>
-                        <Input
-                          id="cpf"
-                          value={formData.cpf}
-                          onChange={(e) =>
-                            updateFormData("cpf", e.target.value)
-                          }
-                          className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        />
-                      </motion.div>
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label htmlFor="birthDate">Data de nascimento</Label>
-                        <Input
-                          id="birthDate"
-                          type="date"
-                          value={formData.birthDate}
-                          onChange={(e) =>
-                            updateFormData("birthDate", e.target.value)
-                          }
-                          className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        />
-                      </motion.div>
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label htmlFor="phoneNumber">Telefone</Label>
-                        <Input
-                          id="phoneNumber"
-                          value={formData.phoneNumber}
-                          onChange={(e) =>
-                            updateFormData("phoneNumber", e.target.value)
-                          }
-                          className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        />
-                      </motion.div>
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label>Escolaridade</Label>
-                        <Select
-                          value={formData.educationLevel}
-                          onValueChange={(value) =>
-                            updateFormData("educationLevel", value)
-                          }
-                        >
-                          <SelectTrigger className="w-full transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                            <SelectValue placeholder="Selecione" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="NONE">Nenhuma</SelectItem>
-                            <SelectItem value="ELEMENTARY_INCOMPLETE">
-                              Fundamental incompleto
-                            </SelectItem>
-                            <SelectItem value="ELEMENTARY_COMPLETE">
-                              Fundamental completo
-                            </SelectItem>
-                            <SelectItem value="HIGH_SCHOOL_INCOMPLETE">
-                              Médio incompleto
-                            </SelectItem>
-                            <SelectItem value="HIGH_SCHOOL_COMPLETE">
-                              Médio completo
-                            </SelectItem>
-                            <SelectItem value="TECHNICAL">Técnico</SelectItem>
-                            <SelectItem value="UNIVERSITY_INCOMPLETE">
-                              Superior incompleto
-                            </SelectItem>
-                            <SelectItem value="UNIVERSITY_COMPLETE">
-                              Superior completo
-                            </SelectItem>
-                            <SelectItem value="POSTGRAD">
-                              Pós-graduação
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </motion.div>
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label htmlFor="fatherName">Nome do pai</Label>
-                        <Input
-                          id="fatherName"
-                          value={formData.fatherName}
-                          onChange={(e) =>
-                            updateFormData("fatherName", e.target.value)
-                          }
-                          className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        />
-                      </motion.div>
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label htmlFor="motherName">Nome da mãe</Label>
-                        <Input
-                          id="motherName"
-                          value={formData.motherName}
-                          onChange={(e) =>
-                            updateFormData("motherName", e.target.value)
-                          }
-                          className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        />
-                      </motion.div>
-
-                      <motion.div variants={fadeInUp} className="space-y-4 col-span-2">
-                        <div className="flex items-center gap-2">
-                          <Checkbox
-                          id="receivesBolsaFamilia"
-                          checked={formData.receivesBolsaFamilia}
-                          onCheckedChange={(checked) =>
-                            updateFormData("receivesBolsaFamilia", !!checked)
-                          }
-                        />
-                        <Label htmlFor="receivesBolsaFamilia">
-                          Recebe Bolsa Família
-                        </Label>
-                        </div>
-                        <Label htmlFor="nis">NIS</Label>
-                        <Input
-                          id="nis"
-                          value={formData.nis}
-                          onChange={(e) =>
-                            updateFormData("nis", e.target.value)
-                          }
-                          className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        />
-                      </motion.div>
-                    </CardContent>
-                  </>
-                )}
+                {currentStep === 0 && <PersonStepPerson />}
 
                 {/* Step 1: Address */}
                 {currentStep === 1 && (
@@ -424,9 +207,7 @@ const OnboardingForm = () => {
                         <Input
                           id="cep"
                           value={formData.cep}
-                          onChange={(e) =>
-                            updateFormData("cep", e.target.value)
-                          }
+                          onChange={(e) => console.log("cep", e.target.value)}
                           className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
                       </motion.div>
@@ -436,7 +217,7 @@ const OnboardingForm = () => {
                           id="neighborhood"
                           value={formData.neighborhood}
                           onChange={(e) =>
-                            updateFormData("neighborhood", e.target.value)
+                            console.log("neighborhood", e.target.value)
                           }
                           className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
@@ -447,7 +228,7 @@ const OnboardingForm = () => {
                           id="street"
                           value={formData.street}
                           onChange={(e) =>
-                            updateFormData("street", e.target.value)
+                            console.log("street", e.target.value)
                           }
                           className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
@@ -458,7 +239,7 @@ const OnboardingForm = () => {
                           id="number"
                           value={formData.number}
                           onChange={(e) =>
-                            updateFormData("number", e.target.value)
+                            console.log("number", e.target.value)
                           }
                           className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
@@ -469,7 +250,7 @@ const OnboardingForm = () => {
                           id="complement"
                           value={formData.complement}
                           onChange={(e) =>
-                            updateFormData("complement", e.target.value)
+                            console.log("complement", e.target.value)
                           }
                           className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
@@ -492,7 +273,7 @@ const OnboardingForm = () => {
                           id="relativeName"
                           value={formData.relativeName}
                           onChange={(e) =>
-                            updateFormData("relativeName", e.target.value)
+                            console.log("relativeName", e.target.value)
                           }
                           className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
@@ -502,7 +283,7 @@ const OnboardingForm = () => {
                         <Select
                           value={formData.degree}
                           onValueChange={(value) =>
-                            updateFormData("degree", value)
+                            console.log("degree", value)
                           }
                         >
                           <SelectTrigger className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary">
@@ -533,7 +314,7 @@ const OnboardingForm = () => {
                           id="degreeText"
                           value={formData.degreeText}
                           onChange={(e) =>
-                            updateFormData("degreeText", e.target.value)
+                            console.log("degreeText", e.target.value)
                           }
                           className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
@@ -546,10 +327,7 @@ const OnboardingForm = () => {
                           id="relativePhoneNumber"
                           value={formData.relativePhoneNumber}
                           onChange={(e) =>
-                            updateFormData(
-                              "relativePhoneNumber",
-                              e.target.value,
-                            )
+                            console.log("relativePhoneNumber", e.target.value)
                           }
                           className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
@@ -571,7 +349,7 @@ const OnboardingForm = () => {
                         <Select
                           value={formData.courseId}
                           onValueChange={(value) =>
-                            updateFormData("courseId", value)
+                            console.log("courseId", value)
                           }
                         >
                           <SelectTrigger className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary">
@@ -589,7 +367,7 @@ const OnboardingForm = () => {
                           type="date"
                           value={formData.enrolledAt}
                           onChange={(e) =>
-                            updateFormData("enrolledAt", e.target.value)
+                            console.log("enrolledAt", e.target.value)
                           }
                           className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
@@ -601,7 +379,7 @@ const OnboardingForm = () => {
                           type="date"
                           value={formData.completedAt}
                           onChange={(e) =>
-                            updateFormData("completedAt", e.target.value)
+                            console.log("completedAt", e.target.value)
                           }
                           className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
@@ -612,7 +390,7 @@ const OnboardingForm = () => {
                           id="courseNotes"
                           value={formData.courseNotes}
                           onChange={(e) =>
-                            updateFormData("courseNotes", e.target.value)
+                            console.log("courseNotes", e.target.value)
                           }
                           className="min-h-[80px] transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
@@ -636,7 +414,7 @@ const OnboardingForm = () => {
                         <Select
                           value={formData.assistanceTypeId}
                           onValueChange={(value) =>
-                            updateFormData("assistanceTypeId", value)
+                            console.log("assistanceTypeId", value)
                           }
                         >
                           <SelectTrigger className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary">
@@ -654,7 +432,7 @@ const OnboardingForm = () => {
                           type="date"
                           value={formData.receivedAt}
                           onChange={(e) =>
-                            updateFormData("receivedAt", e.target.value)
+                            console.log("receivedAt", e.target.value)
                           }
                           className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
@@ -666,7 +444,7 @@ const OnboardingForm = () => {
                           type="number"
                           value={formData.quantity}
                           onChange={(e) =>
-                            updateFormData("quantity", e.target.value)
+                            console.log("quantity", e.target.value)
                           }
                           className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
@@ -678,7 +456,7 @@ const OnboardingForm = () => {
                           type="number"
                           value={formData.valueCents}
                           onChange={(e) =>
-                            updateFormData("valueCents", e.target.value)
+                            console.log("valueCents", e.target.value)
                           }
                           className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
@@ -689,7 +467,7 @@ const OnboardingForm = () => {
                           id="assistanceNotes"
                           value={formData.assistanceNotes}
                           onChange={(e) =>
-                            updateFormData("assistanceNotes", e.target.value)
+                            console.log("assistanceNotes", e.target.value)
                           }
                           className="min-h-[80px] transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
@@ -713,7 +491,7 @@ const OnboardingForm = () => {
                         <Select
                           value={formData.documentType}
                           onValueChange={(value) =>
-                            updateFormData("documentType", value)
+                            console.log("documentType", value)
                           }
                         >
                           <SelectTrigger className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary">
@@ -733,7 +511,7 @@ const OnboardingForm = () => {
                           id="fileUrl"
                           value={formData.fileUrl}
                           onChange={(e) =>
-                            updateFormData("fileUrl", e.target.value)
+                            console.log("fileUrl", e.target.value)
                           }
                           className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
@@ -744,7 +522,7 @@ const OnboardingForm = () => {
                           id="fileName"
                           value={formData.fileName}
                           onChange={(e) =>
-                            updateFormData("fileName", e.target.value)
+                            console.log("fileName", e.target.value)
                           }
                           className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
@@ -755,7 +533,7 @@ const OnboardingForm = () => {
                           id="mimeType"
                           value={formData.mimeType}
                           onChange={(e) =>
-                            updateFormData("mimeType", e.target.value)
+                            console.log("mimeType", e.target.value)
                           }
                           className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         />
@@ -765,54 +543,6 @@ const OnboardingForm = () => {
                 )}
               </motion.div>
             </AnimatePresence>
-
-            <CardFooter className="flex justify-between pt-6 pb-4">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={prevStep}
-                  disabled={currentStep === 0}
-                  className="flex items-center gap-1 transition-all duration-300 rounded-2xl"
-                >
-                  <ChevronLeft className="h-4 w-4" /> Back
-                </Button>
-              </motion.div>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button
-                  type="button"
-                  onClick={
-                    currentStep === steps.length - 1 ? handleSubmit : nextStep
-                  }
-                  disabled={!isStepValid() || isSubmitting}
-                  className={cn(
-                    "flex items-center gap-1 transition-all duration-300 rounded-2xl",
-                    currentStep === steps.length - 1 ? "" : "",
-                  )}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" /> Submitting...
-                    </>
-                  ) : (
-                    <>
-                      {currentStep === steps.length - 1 ? "Submit" : "Next"}
-                      {currentStep === steps.length - 1 ? (
-                        <Check className="h-4 w-4" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4" />
-                      )}
-                    </>
-                  )}
-                </Button>
-              </motion.div>
-            </CardFooter>
           </div>
         </Card>
       </motion.div>
@@ -824,7 +554,8 @@ const OnboardingForm = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.4 }}
       >
-        Step {currentStep + 1} of {steps.length}: {steps[currentStep].title}
+        Step {currentStep + 1} of {PERSON_STEPS.length}:{" "}
+        {PERSON_STEPS[currentStep].title}
       </motion.div>
     </div>
   );

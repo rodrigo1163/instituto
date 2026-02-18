@@ -30,23 +30,16 @@ export interface CreatePersonResponse {
   id: string;
 }
 
-export async function createPerson({
+export async function upsertPerson({
   slug,
   body,
 }: {
   slug: string;
   body: CreatePersonInput;
 }): Promise<CreatePersonResponse> {
-  const payload = {
-    ...body,
-    birthDate:
-      typeof body.birthDate === "string"
-        ? body.birthDate
-        : body.birthDate.toISOString().split("T")[0],
-  };
   const response = await api.post<CreatePersonResponse>(
     `/organizations/${slug}/persons`,
-    payload
+    body
   );
   return response.data;
 }

@@ -71,33 +71,42 @@ export async function updatePerson(app: FastifyInstance) {
           throw new NotFoundError("Pessoa não encontrada.");
         }
 
-        if (
-          (body.cpf || body.nis) &&
-          (body.cpf !== personExist.cpf || body.nis !== personExist.nis)
-        ) {
+        const cpfMudou = body.cpf && body.cpf !== personExist.cpf;
+        const nisMudou = body.nis && body.nis !== personExist.nis;
+
+        if (cpfMudou || nisMudou) {
+          const orConditions: Array<{ cpf: string } | { nis: string }> = [];
+
+          if (cpfMudou) {
+            orConditions.push({ cpf: body.cpf! });
+          }
+
+          if (nisMudou) {
+            orConditions.push({ nis: body.nis! });
+          }
+
           const cpfOrNisExist = await prisma.person.findFirst({
             where: {
-              OR: [
-                {
-                  cpf: body.cpf,
-                },
-                {
-                  nis: body.nis,
-                },
-              ],
+              organizationId: organization.id,
+              NOT: { id: personId },
+              OR: orConditions,
             },
           });
 
-          if (
-            (cpfOrNisExist && cpfOrNisExist.cpf === body.cpf) ||
-            cpfOrNisExist?.nis === body.nis
-          ) {
-            throw new BadRequestError("CPF e NIS já estão cadastrados");
+          if (cpfOrNisExist) {
+            const duplicateCpf = cpfMudou && cpfOrNisExist.cpf === body.cpf;
+            const duplicateNis = nisMudou && cpfOrNisExist.nis === body.nis;
+
+            if (duplicateCpf && duplicateNis) {
+              throw new BadRequestError("CPF e NIS já estão cadastrados");
+            }
+            if (duplicateCpf) {
+              throw new BadRequestError("CPF já cadastrado");
+            }
+            if (duplicateNis) {
+              throw new BadRequestError("NIS já cadastrado");
+            }
           }
-          if (cpfOrNisExist && cpfOrNisExist.cpf === body.cpf) {
-            throw new BadRequestError("CPF já cadastrado");
-          }
-          throw new BadRequestError("Nis já cadastrado");
         }
 
         await prisma.person.update({

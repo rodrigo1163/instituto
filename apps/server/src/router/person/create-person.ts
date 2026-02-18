@@ -4,6 +4,7 @@ import { z } from "zod/v4";
 import { prisma } from "../../../lib/prisma";
 import { authPlugin } from "../../middlewares/auth";
 import { NotFoundError } from "../_errors/not-found-error";
+import { BadRequestError } from "../_errors/bad-request-error";
 
 const educationLevelSchema = z.enum([
   "NONE",
@@ -31,6 +32,7 @@ export async function createPerson(app: FastifyInstance) {
             slug: z.string(),
           }),
           body: z.object({
+            id: z.string().uuid().optional(),
             fullName: z.string(),
             cpf: z.string(),
             birthDate: z.coerce.date(),
@@ -54,19 +56,39 @@ export async function createPerson(app: FastifyInstance) {
         const { organization } = await request.getUserMembership(slug);
         const body = request.body;
 
+        const orConditions: Array<{ cpf: string } | { nis: string }> = [
+          { cpf: body.cpf },
+        ];
+
+        if (body.nis) {
+          orConditions.push({ nis: body.nis });
+        }
+
         const personExist = await prisma.person.findFirst({
           where: {
             organizationId: organization.id,
-            cpf: body.cpf
+            NOT: { id: body.id },
+            OR: orConditions,
           },
         });
 
         if (personExist) {
-          throw new NotFoundError("Pessoa já cadastrada.");
+          const duplicateCpf = personExist.cpf === body.cpf;
+          const duplicateNis = body.nis && personExist.nis === body.nis;
+
+          if (duplicateCpf && duplicateNis) {
+            throw new BadRequestError("CPF e NIS já estão cadastrados");
+          }
+          if (duplicateCpf) {
+            throw new BadRequestError("CPF já cadastrado");
+          }
+          if (duplicateNis) {
+            throw new BadRequestError("NIS já cadastrado");
+          }
         }
 
-        const person = await prisma.person.create({
-          data: {
+        const data = {
+            id: body.id,
             organizationId: organization.id,
             fullName: body.fullName,
             cpf: body.cpf,
@@ -77,10 +99,27 @@ export async function createPerson(app: FastifyInstance) {
             educationLevel: body.educationLevel ?? null,
             receivesBolsaFamilia: body.receivesBolsaFamilia ?? false,
             nis: body.nis ?? null,
+        }
+
+        if (body.id) {
+          const person = await prisma.person.update({
+            where: { id: body.id },
+            data,
+            select: {
+              id: true
+            }
+          });
+          return { id: person.id };
+        }
+
+        const person = await prisma.person.create({
+          data,
+          select: {
+            id: true
           }
         });
 
         return { id: person.id };
-      }
+      },
     );
 }

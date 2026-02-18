@@ -96,13 +96,13 @@ export function PersonTableContent() {
         <div className="flex items-center gap-3">
           {/* Add user button */}
           <Button asChild className="ml-auto">
-            <Link to="/$slug/dashboard" params={{ slug: slug || "" }}>
+            <Link to="/$slug/persons/new" params={{ slug: slug || "" }}>
               <PlusIcon
                 aria-hidden="true"
                 className="-ms-1 opacity-60"
                 size={16}
               />
-              Nova Implementação
+              Nova Pessoa
             </Link>
           </Button>
         </div>
