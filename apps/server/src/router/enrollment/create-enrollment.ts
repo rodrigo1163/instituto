@@ -22,6 +22,7 @@ export async function createEnrollment(app: FastifyInstance) {
           }),
           body: z.object({
             courseId: z.string().uuid(),
+            enrolledAt: z.coerce.date().optional(),
             notes: z.string().optional(),
           }),
           response: {
@@ -79,6 +80,7 @@ export async function createEnrollment(app: FastifyInstance) {
           data: {
             personId,
             courseId: body.courseId,
+            ...(body.enrolledAt && { enrolledAt: body.enrolledAt }),
             notes: body.notes ?? null,
           },
         });

@@ -1,14 +1,11 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Check, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -22,15 +19,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { usePersonStep } from "@/app/providers/person-step-provider";
 import { PersonStepPerson } from "./person-step-person";
 import { PersonStepAddress } from "./person-step-address";
 import { PersonStepRelative } from "./person-step-relative";
-import { PersonStepFooter } from "./person-step-footer";
+import { PersonStepCourse } from "./person-step-course";
 
 export const PERSON_STEPS = [
   { id: "person", title: "Dados da pessoa" },
@@ -159,65 +154,9 @@ const OnboardingForm = () => {
 
                 {/* Step 3: PersonCourse */}
                 {currentStep === 3 && (
-                  <>
-                    <CardHeader>
-                      <CardTitle>Cursos</CardTitle>
-                      <CardDescription>Matrícula em curso</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label>Curso</Label>
-                        <Select
-                          value={formData.courseId}
-                          onValueChange={(value) =>
-                            console.log("courseId", value)
-                          }
-                        >
-                          <SelectTrigger className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                            <SelectValue placeholder="Selecione o curso" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {/* itens virão da API de cursos */}
-                          </SelectContent>
-                        </Select>
-                      </motion.div>
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label htmlFor="enrolledAt">Data de matrícula</Label>
-                        <Input
-                          id="enrolledAt"
-                          type="date"
-                          value={formData.enrolledAt}
-                          onChange={(e) =>
-                            console.log("enrolledAt", e.target.value)
-                          }
-                          className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        />
-                      </motion.div>
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label htmlFor="completedAt">Data de conclusão</Label>
-                        <Input
-                          id="completedAt"
-                          type="date"
-                          value={formData.completedAt}
-                          onChange={(e) =>
-                            console.log("completedAt", e.target.value)
-                          }
-                          className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        />
-                      </motion.div>
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label htmlFor="courseNotes">Observações</Label>
-                        <Textarea
-                          id="courseNotes"
-                          value={formData.courseNotes}
-                          onChange={(e) =>
-                            console.log("courseNotes", e.target.value)
-                          }
-                          className="min-h-[80px] transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        />
-                      </motion.div>
-                    </CardContent>
-                  </>
+                  <Suspense fallback={<div>Carregando...</div>}>
+                    <PersonStepCourse />
+                  </Suspense>
                 )}
 
                 {/* Step 4: PersonAssistance */}

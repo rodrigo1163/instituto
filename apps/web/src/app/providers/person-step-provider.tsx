@@ -36,14 +36,6 @@ interface RelativeFields {
   relativePhoneNumber: string;
 }
 
-// PersonCourse (um item)
-interface CourseFields {
-  courseId: string;
-  enrolledAt: string;
-  completedAt: string;
-  courseNotes: string;
-}
-
 // PersonAssistance (um item)
 interface AssistanceFields {
   assistanceTypeId: string;
@@ -64,7 +56,6 @@ interface DocumentFields {
 type FormData = PersonFields &
   AddressFields &
   RelativeFields &
-  CourseFields &
   AssistanceFields &
   DocumentFields;
 
@@ -112,10 +103,6 @@ export function PersonStepProvider({ children }: PersonStepProvider) {
     degree: "",
     degreeText: "",
     relativePhoneNumber: "",
-    courseId: "",
-    enrolledAt: "",
-    completedAt: "",
-    courseNotes: "",
     assistanceTypeId: "",
     receivedAt: "",
     quantity: "",
