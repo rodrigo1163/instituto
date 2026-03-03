@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const envSchema = z.object({
-	API_URL: z.url().default("http://localhost:3333"),
+	API_URL: z.url().default("http://localhost:3335"),
 	CLIENT_URL: z.url().default("http://localhost:3000"),
 	VITE_ENABLE_API_DELAY: z.string().transform((value) => value === "true"),
 });

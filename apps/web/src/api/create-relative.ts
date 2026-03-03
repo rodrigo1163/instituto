@@ -17,6 +17,7 @@ export const KINSHIP_DEGREES = [
 export type KinshipDegree = (typeof KINSHIP_DEGREES)[number];
 
 export interface CreateRelativeInput {
+  id?: string;
   relativeName: string;
   degree: KinshipDegree;
   degreeText?: string;
@@ -30,10 +31,11 @@ export async function createRelative({
 }: {
   slug: string;
   personId: string;
-  body: CreateRelativeInput;
+  body: CreateRelativeInput | CreateRelativeInput[];
 }): Promise<void> {
+  const relatives = Array.isArray(body) ? body : [body];
   await api.post(
     `/organizations/${slug}/persons/${personId}/relatives`,
-    body,
+    { relatives },
   );
 }

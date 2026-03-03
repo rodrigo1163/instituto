@@ -40,7 +40,7 @@ pnpm install
 Crie um arquivo `.env` na pasta `apps/server` com as seguintes variáveis:
 
 ```env
-PORT=3333
+PORT=3335
 BETTER_AUTH_SECRET=sua-chave-secreta-aqui
 DATABASE_URL=postgresql://docker:docker@localhost:5432/tanstack
 CLIENT_ORIGIN=http://localhost:3000
@@ -51,7 +51,7 @@ CLIENT_ORIGIN=http://localhost:3000
 Crie um arquivo `.env` na pasta `apps/web` com as seguintes variáveis:
 
 ```env
-API_URL=http://localhost:3333
+API_URL=http://localhost:3335
 CLIENT_URL=http://localhost:3000
 ```
 

@@ -1,6 +1,5 @@
 import { upsertPerson } from "@/api/upsert-person";
 import { upsertAddress } from "@/api/upsert-address";
-import { createRelative } from "@/api/create-relative";
 import { PERSON_STEPS } from "@/components/person/person-step";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router";
@@ -145,11 +144,7 @@ export function PersonStepProvider({ children }: PersonStepProvider) {
         });
       }
       if (currentStep === 2) {
-        return createRelative({
-          slug: slug!,
-          personId: personId!,
-          body,
-        }).then(() => ({}));
+        return Promise.resolve({ id: undefined });
       }
       return Promise.resolve({ id: undefined });
     },

@@ -34,10 +34,14 @@ export async function createRelative(app: FastifyInstance) {
             personId: z.string().uuid(),
           }),
           body: z.object({
-            relativeName: z.string(),
-            degree: kinshipDegreeSchema,
-            degreeText: z.string().optional(),
-            phoneNumber: z.string().optional(),
+            relatives: z.array(
+              z.object({
+                relativeName: z.string(),
+                degree: kinshipDegreeSchema,
+                degreeText: z.string().optional(),
+                phoneNumber: z.string().optional(),
+              }),
+            ),
           }),
           response: {
             200: z.null(),
@@ -53,7 +57,8 @@ export async function createRelative(app: FastifyInstance) {
       async (request) => {
         const { slug, personId } = request.params;
         const { organization } = await request.getUserMembership(slug);
-        const body = request.body;
+        const { relatives } = request.body;
+        console.log('relatives', relatives);
 
         const person = await prisma.person.findFirst({
           where: {
@@ -67,14 +72,14 @@ export async function createRelative(app: FastifyInstance) {
           throw new NotFoundError("Pessoa não encontrada.");
         }
 
-        await prisma.personRelative.create({
-          data: {
+        await prisma.personRelative.createMany({
+          data: relatives.map((r) => ({
             personId,
-            relativeName: body.relativeName,
-            degree: body.degree,
-            degreeText: body.degreeText ?? null,
-            phoneNumber: body.phoneNumber ?? null,
-          },
+            relativeName: r.relativeName,
+            degree: r.degree,
+            degreeText: r.degreeText ?? null,
+            phoneNumber: r.phoneNumber ?? null,
+          })),
         });
       }
     );
