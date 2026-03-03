@@ -97,7 +97,7 @@ function EnrollmentCard({ enrollment, onEdit, onRemove }: EnrollmentCardProps) {
         <GraduationCap className="size-6" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="font-medium truncate">{courseTitle}</p>
+        <p className="font-medium truncate">{courseTitle} - {enrollment.course?.partner?.name ?? "Parceiro não encontrado"}</p>
         <p className="text-sm text-muted-foreground">
           Matrícula: {formatDate(enrollment.enrolledAt)}
         </p>

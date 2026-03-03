@@ -12,6 +12,10 @@ export interface Enrollment {
   course?: {
     id: string;
     title: string;
+    partner?: {
+      id: string;
+      name: string;
+    };
   };
 }
 

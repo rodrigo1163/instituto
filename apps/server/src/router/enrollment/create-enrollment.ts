@@ -68,9 +68,15 @@ export async function createEnrollment(app: FastifyInstance) {
           where: {
             personId,
             courseId: body.courseId,
-            deleteAt: null,
           },
         });
+        if(existing?.deleteAt) {
+          await prisma.personCourse.update({
+            where: { id: existing.id },
+            data: { deleteAt: null },
+          });
+          return 
+        }
 
         if (existing) {
           throw new BadRequestError("Pessoa já matriculada neste curso.");

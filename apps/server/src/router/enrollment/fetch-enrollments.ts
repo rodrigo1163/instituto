@@ -5,11 +5,6 @@ import { prisma } from "../../../lib/prisma";
 import { authPlugin } from "../../middlewares/auth";
 import { NotFoundError } from "../_errors/not-found-error";
 
-const courseSchema = z.object({
-  id: z.string().uuid(),
-  title: z.string(),
-});
-
 const enrollmentSchema = z.object({
   id: z.string().uuid(),
   personId: z.string().uuid(),
@@ -19,7 +14,14 @@ const enrollmentSchema = z.object({
   notes: z.string().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
-  course: courseSchema,
+  course: z.object({
+    id: z.string().uuid(),
+    title: z.string(),
+    partner: z.object({
+      id: z.uuid(),
+      name: z.string(),
+    }),
+  }),
 });
 
 export async function fetchEnrollments(app: FastifyInstance) {
@@ -71,11 +73,18 @@ export async function fetchEnrollments(app: FastifyInstance) {
             deleteAt: null,
           },
           include: {
-            course: { select: { id: true, title: true } },
+            course: {
+              select: {
+                id: true,
+                title: true,
+                partner: {
+                  select: { id: true, name: true },
+                },
+              },
+            },
           },
           orderBy: { enrolledAt: "desc" },
         });
-
         return { enrollments };
       }
     );
