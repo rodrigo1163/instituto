@@ -5,6 +5,8 @@ import type { UpdateEnrollmentInput } from "@/api/update-enrollment";
 import { removeEnrollment } from "@/api/remove-enrollment";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useSearch } from "@tanstack/react-router";
+import { toast } from "sonner";
+import { AxiosError } from "axios";
 
 export function useCreateEnrollment() {
   const { slug } = useParams({ strict: false });
@@ -20,6 +22,13 @@ export function useCreateEnrollment() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["enrollments", slug, personId] });
+    },
+    onError: (error) => {
+      if(error instanceof AxiosError) {
+        toast.error(error.response?.data.message);
+      } else {
+        toast.error("Erro ao criar matrícula");
+      }
     },
   });
 }
@@ -45,6 +54,12 @@ export function useUpdateEnrollment() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["enrollments", slug, personId] });
+    }, onError: (error) => {
+      if(error instanceof AxiosError) {
+        toast.error(error.response?.data.message);
+      } else {
+        toast.error("Erro ao atualizar matrícula");
+      }
     },
   });
 }
@@ -63,6 +78,13 @@ export function useRemoveEnrollment() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["enrollments", slug, personId] });
+    },
+    onError: (error) => {
+      if(error instanceof AxiosError) {
+        toast.error(error.response?.data.message);
+      } else {
+        toast.error("Erro ao remover matrícula");
+      }
     },
   });
 }
