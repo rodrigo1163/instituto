@@ -164,16 +164,6 @@ const OnboardingForm = () => {
         </Card>
       </motion.div>
 
-      {/* Step indicator */}
-      <motion.div
-        className="mt-4 text-center text-sm text-muted-foreground"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-      >
-        Step {currentStep + 1} of {PERSON_STEPS.length}:{" "}
-        {PERSON_STEPS[currentStep].title}
-      </motion.div>
     </div>
   );
 };
