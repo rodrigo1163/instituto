@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -26,6 +25,7 @@ import { PersonStepPerson } from "./person-step-person";
 import { PersonStepAddress } from "./person-step-address";
 import { PersonStepRelative } from "./person-step-relative";
 import { PersonStepCourse } from "./person-step-course";
+import { PersonStepAssistance } from "./person-step-assistance";
 
 export const PERSON_STEPS = [
   { id: "person", title: "Dados da pessoa" },
@@ -161,79 +161,9 @@ const OnboardingForm = () => {
 
                 {/* Step 4: PersonAssistance */}
                 {currentStep === 4 && (
-                  <>
-                    <CardHeader>
-                      <CardTitle>Assistências</CardTitle>
-                      <CardDescription>
-                        Registro de assistência/auxílio
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label>Tipo de assistência</Label>
-                        <Select
-                          value={formData.assistanceTypeId}
-                          onValueChange={(value) =>
-                            console.log("assistanceTypeId", value)
-                          }
-                        >
-                          <SelectTrigger className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                            <SelectValue placeholder="Selecione o tipo" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {/* itens virão da API de tipos de assistência */}
-                          </SelectContent>
-                        </Select>
-                      </motion.div>
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label htmlFor="receivedAt">Data de recebimento</Label>
-                        <Input
-                          id="receivedAt"
-                          type="date"
-                          value={formData.receivedAt}
-                          onChange={(e) =>
-                            console.log("receivedAt", e.target.value)
-                          }
-                          className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        />
-                      </motion.div>
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label htmlFor="quantity">Quantidade</Label>
-                        <Input
-                          id="quantity"
-                          type="number"
-                          value={formData.quantity}
-                          onChange={(e) =>
-                            console.log("quantity", e.target.value)
-                          }
-                          className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        />
-                      </motion.div>
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label htmlFor="valueCents">Valor (centavos)</Label>
-                        <Input
-                          id="valueCents"
-                          type="number"
-                          value={formData.valueCents}
-                          onChange={(e) =>
-                            console.log("valueCents", e.target.value)
-                          }
-                          className="transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        />
-                      </motion.div>
-                      <motion.div variants={fadeInUp} className="space-y-2">
-                        <Label htmlFor="assistanceNotes">Observações</Label>
-                        <Textarea
-                          id="assistanceNotes"
-                          value={formData.assistanceNotes}
-                          onChange={(e) =>
-                            console.log("assistanceNotes", e.target.value)
-                          }
-                          className="min-h-[80px] transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        />
-                      </motion.div>
-                    </CardContent>
-                  </>
+                  <Suspense fallback={<div>Carregando...</div>}>
+                    <PersonStepAssistance />
+                  </Suspense>
                 )}
 
                 {/* Step 5: PersonDocument */}

@@ -36,15 +36,6 @@ interface RelativeFields {
   relativePhoneNumber: string;
 }
 
-// PersonAssistance (um item)
-interface AssistanceFields {
-  assistanceTypeId: string;
-  receivedAt: string;
-  quantity: string;
-  valueCents: string;
-  assistanceNotes: string;
-}
-
 // PersonDocument (um item)
 interface DocumentFields {
   documentType: string;
@@ -56,7 +47,6 @@ interface DocumentFields {
 type FormData = PersonFields &
   AddressFields &
   RelativeFields &
-  AssistanceFields &
   DocumentFields;
 
 interface PersonStepContextType {
@@ -103,11 +93,6 @@ export function PersonStepProvider({ children }: PersonStepProvider) {
     degree: "",
     degreeText: "",
     relativePhoneNumber: "",
-    assistanceTypeId: "",
-    receivedAt: "",
-    quantity: "",
-    valueCents: "",
-    assistanceNotes: "",
     documentType: "WALLET_PHOTO",
     fileUrl: "",
     fileName: "",

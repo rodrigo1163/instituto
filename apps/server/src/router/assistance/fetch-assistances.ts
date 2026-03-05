@@ -15,6 +15,10 @@ const assistanceSchema = z.object({
   notes: z.string().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
+  assistanceType: z.object({
+    id: z.string().uuid(),
+    name: z.string(),
+  }),
 });
 
 export async function fetchAssistances(app: FastifyInstance) {
@@ -64,6 +68,11 @@ export async function fetchAssistances(app: FastifyInstance) {
           where: {
             personId,
             deleteAt: null,
+          },
+          include: {
+            assistanceType: {
+              select: { id: true, name: true },
+            },
           },
           orderBy: { receivedAt: "desc" },
         });

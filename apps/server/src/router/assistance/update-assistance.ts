@@ -21,7 +21,7 @@ export async function updateAssistance(app: FastifyInstance) {
             assistanceId: z.string().uuid(),
           }),
           body: z.object({
-            receivedAt: z.coerce.date().optional(),
+            receivedAt: z.string().optional(),
             quantity: z.number().int().nullable().optional(),
             valueCents: z.number().int().nullable().optional(),
             notes: z.string().nullable().optional(),
@@ -66,10 +66,26 @@ export async function updateAssistance(app: FastifyInstance) {
           throw new NotFoundError("Registro de assistência não encontrado.");
         }
 
+        const updateData: {
+          receivedAt?: Date;
+          quantity?: number | null;
+          valueCents?: number | null;
+          notes?: string | null;
+        } = {};
+
+        if (body.receivedAt !== undefined) {
+          updateData.receivedAt = new Date(body.receivedAt);
+        }
+        if (body.quantity !== undefined) updateData.quantity = body.quantity;
+        if (body.valueCents !== undefined) updateData.valueCents = body.valueCents;
+        if (body.notes !== undefined) updateData.notes = body.notes;
+
         await prisma.personAssistance.update({
           where: { id: assistanceId },
-          data: body,
+          data: updateData,
         });
+
+        return null;
       }
     );
 }
