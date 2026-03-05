@@ -12,7 +12,7 @@ export async function updatePersonAvatar(app: FastifyInstance) {
     .withTypeProvider<ZodTypeProvider>()
     .register(authPlugin)
     .put(
-      "/organizations/:slug/persons/:personId/avatar",
+      "/organizations/:slug/persons/:personId/avatar/:documentId",
       {
         schema: {
           tags: ["person-avatar"],
@@ -24,7 +24,17 @@ export async function updatePersonAvatar(app: FastifyInstance) {
           }),
           body: z.object({
             type: documentTypeSchema.optional(),
-            fileUrl: z.string().url().optional(),
+            fileUrl: z
+              .string()
+              .min(1)
+              .refine(
+                (val) =>
+                  val.startsWith("data:") ||
+                  val.startsWith("http://") ||
+                  val.startsWith("https://"),
+                { message: "fileUrl deve ser uma URL válida ou data URL" },
+              )
+              .optional(),
             fileName: z.string().nullable().optional(),
             mimeType: z.string().nullable().optional(),
           }),

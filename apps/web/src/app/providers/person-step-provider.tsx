@@ -1,5 +1,7 @@
 import { upsertPerson } from "@/api/upsert-person";
 import { upsertAddress } from "@/api/upsert-address";
+import { createPersonAvatar } from "@/api/create-person-avatar";
+import { updatePersonAvatar } from "@/api/update-person-avatar";
 import { PERSON_STEPS } from "@/components/person/person-step";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router";
@@ -117,6 +119,27 @@ export function PersonStepProvider({ children }: PersonStepProvider) {
       }
       if (currentStep === 2) {
         return Promise.resolve({ id: undefined });
+      }
+      if (currentStep === 5) {
+        const avatarBody = {
+          type: "WALLET_PHOTO" as const,
+          fileUrl: body.fileUrl,
+          fileName: body.fileName,
+          mimeType: body.mimeType,
+        };
+        if (body.documentId) {
+          return updatePersonAvatar({
+            slug: slug!,
+            personId: personId!,
+            documentId: body.documentId,
+            body: avatarBody,
+          });
+        }
+        return createPersonAvatar({
+          slug: slug!,
+          personId: personId!,
+          body: avatarBody,
+        });
       }
       return Promise.resolve({ id: undefined });
     },

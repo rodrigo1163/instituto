@@ -10,7 +10,7 @@ export async function removePersonAvatar(app: FastifyInstance) {
     .withTypeProvider<ZodTypeProvider>()
     .register(authPlugin)
     .delete(
-      "/organizations/:slug/persons/:personId/avatar",
+      "/organizations/:slug/persons/:personId/avatar/:documentId",
       {
         schema: {
           tags: ["person-avatar"],

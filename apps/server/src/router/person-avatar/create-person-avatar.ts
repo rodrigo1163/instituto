@@ -26,7 +26,16 @@ export async function createPersonAvatar(app: FastifyInstance) {
           }),
           body: z.object({
             type: documentTypeSchema.default("WALLET_PHOTO"),
-            fileUrl: z.string().url(),
+            fileUrl: z
+              .string()
+              .min(1)
+              .refine(
+                (val) =>
+                  val.startsWith("data:") ||
+                  val.startsWith("http://") ||
+                  val.startsWith("https://"),
+                { message: "fileUrl deve ser uma URL válida ou data URL" },
+              ),
             fileName: z.string().optional(),
             mimeType: z.string().optional(),
           }),
