@@ -43,6 +43,8 @@ import { createPersonAvatar } from "./router/person-avatar/create-person-avatar"
 import { updatePersonAvatar } from "./router/person-avatar/update-person-avatar";
 import { removePersonAvatar } from "./router/person-avatar/remove-person-avatar";
 import { errorHandler } from "./error-handler";
+import multipart from "@fastify/multipart";
+import { getPhotoCardUpload, photoCardUpload } from "./router/uploads/photo-card";
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
 
@@ -50,6 +52,8 @@ app.setValidatorCompiler(validatorCompiler);
 app.setSerializerCompiler(serializerCompiler);
 
 app.setErrorHandler(errorHandler)
+
+app.register(multipart);
 
 app.register(fastifyCors, {
   origin: env.CLIENT_ORIGIN,
@@ -112,6 +116,10 @@ app.register(getPersonAvatar);
 app.register(createPersonAvatar);
 app.register(updatePersonAvatar);
 app.register(removePersonAvatar);
+
+// Photo Card Upload
+app.register(photoCardUpload);
+app.register(getPhotoCardUpload);
 
 app.route({
   method: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

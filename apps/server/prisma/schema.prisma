@@ -192,6 +192,7 @@ model Person {
   enrollments PersonCourse[]
   assistances PersonAssistance[]
   documents   PersonDocument[]
+  files       File[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -367,4 +368,18 @@ model PersonDocument {
 
   @@index([personId])
   @@map("person_document")
+}
+
+model File {
+  id String @id @default(cuid())
+  name String
+  key String @unique
+  contentType String
+  personId String
+  person   Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  createAt DateTime @default(now())
+
+
+  @@map("file")
 }
