@@ -140,7 +140,7 @@ interface EnrollmentFormModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   enrollment?: Enrollment | null;
-  courses: { id: string; title: string }[];
+  courses: { id: string; title: string, partner: { id: string; name: string } }[];
   onSubmit: (data: EnrollmentSchema) => Promise<void>;
   isSubmitting: boolean;
 }
@@ -243,6 +243,9 @@ function EnrollmentFormModal({
                     {courses.map((course) => (
                       <SelectItem key={course.id} value={course.id}>
                         {course.title}
+                        <span className="text-xs text-muted-foreground">
+                          {course.partner.name}
+                        </span>
                       </SelectItem>
                     ))}
                   </SelectContent>

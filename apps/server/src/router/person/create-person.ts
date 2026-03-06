@@ -97,7 +97,7 @@ export async function createPerson(app: FastifyInstance) {
             motherName: body.motherName ?? null,
             educationLevel: body.educationLevel ?? null,
             receivesBolsaFamilia: body.receivesBolsaFamilia ?? false,
-            nis: body.nis ?? null,
+            nis: body.nis?.trim() ?? null,
         }
 
         if (body.id) {

@@ -4,6 +4,10 @@ export type Course = {
   id: string;
   title: string;
   description: string | null;
+  partner: {
+    id: string;
+    name: string;
+  };
 };
 
 export type FetchCoursesResponse = {

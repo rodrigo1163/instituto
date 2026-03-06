@@ -24,6 +24,10 @@ export async function fetchCourses(app: FastifyInstance) {
                   id: z.string().uuid(),
                   title: z.string(),
                   description: z.string().nullable(),
+                  partner: z.object({
+                    id: z.string().uuid(),
+                    name: z.string(),
+                  }),
                 })
               ),
             }),
@@ -38,7 +42,7 @@ export async function fetchCourses(app: FastifyInstance) {
 
         const courses = await prisma.course.findMany({
           where: { deleteAt: null },
-          select: { id: true, title: true, description: true },
+          select: { id: true, title: true, description: true, partner: true },
         });
 
         return { courses };
